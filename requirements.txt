@@ -1,0 +1,5 @@
+functions-framework==3.*
+degiro-connector>=2.0.23
+Flask==2.*
+google-currency>=1.0.10
+pytest>=7.*
