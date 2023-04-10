@@ -61,10 +61,8 @@ pip install -r requirements.txt
 2. Set the required environment variables:
 
 ```bash
-export DEGIRO_INT_ACCOUNT="your_int_account"
 export DEGIRO_USERNAME="your_degiro_username"
 export DEGIRO_PASSWORD="your_degiro_password"
-export DEGIRO_USER_TOKEN="your_degiro_user_token"
 ```
 
 3. Create a `config` directory in the project root and add a `config.json` file with the following structure:
