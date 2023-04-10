@@ -9,10 +9,8 @@ steps:
   entrypoint: python
   args: ["-m", "pytest"]
   env:
-    - 'DEGIRO_INT_ACCOUNT=${_DEGIRO_INT_ACCOUNT}'
     - 'DEGIRO_USERNAME=${_DEGIRO_USERNAME}'
     - 'DEGIRO_PASSWORD=${_DEGIRO_PASSWORD}'
-    - 'DEGIRO_USER_TOKEN=${_DEGIRO_USER_TOKEN}'
 # Build and deploy
 - name: 'gcr.io/cloud-builders/gcloud'
   args:
@@ -25,4 +23,4 @@ steps:
     - --runtime=python310
     - --entry-point=main
     - --timeout=540
-    - --set-env-vars=DEGIRO_INT_ACCOUNT=${_DEGIRO_INT_ACCOUNT},DEGIRO_USERNAME=${_DEGIRO_USERNAME},DEGIRO_PASSWORD=${_DEGIRO_PASSWORD},DEGIRO_USER_TOKEN=${_DEGIRO_USER_TOKEN}
+    - --set-env-vars=DEGIRO_USERNAME=${_DEGIRO_USERNAME},DEGIRO_PASSWORD=${_DEGIRO_PASSWORD}
