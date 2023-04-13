@@ -41,14 +41,14 @@ The logic behind this strategy is as follows:
 
 ### Example
 
-Assume the user specifies the following configuration for February 2023:
+An example of execution strategy in February 2023:
 
 - Week 1 (Feb 1 - Feb 7): Buy AAPL with a budget of 200 EUR
 - Week 2 (Feb 8 - Feb 14): Buy MSFT with a budget of 200 EUR
 - Week 3 (Feb 15 - Feb 21): Buy GOOGL with a budget of 500 EUR
 - Week 4 (Feb 22 - Feb 28): Buy AMZN with a budget of 200 EUR
 
-The bot will then execute the respective purchases each week, following the schedule and budget specified by the user. For example, in week 1, the bot will check the latest price of AAPL, calculate the whole number of shares to buy based on the 1000 EUR budget and execute a limit order to purchase the shares. The user has to call the bot once every week (for example, Mondays).
+The bot (when called) will execute the respective purchases, following the schedule and budget specified by the user. For example, in week 1, the bot will check the latest price of AAPL, calculate the whole number of shares to buy based on the 1000 EUR budget and execute a limit order to purchase the shares. The user has to call the bot once every week (for example, Mondays).
 
 ### Local Deployment
 
@@ -135,7 +135,7 @@ curl -I http://localhost:8080
 
 The trading bot consists of the following files:
 
-- `main.py`: Contains the main function for executing orders, which is responsible for connecting to the DeGiro API, getting instrument and order parameters, and executing orders.
+- `main.py`: Contains the main function for executing orders, which is responsible for connecting to the DEGIRO API, getting instrument and order parameters, and executing orders.
 - `helpers.py`: Contains helper functions for the trading bot, such as getting instrument and order parameters, executing orders, getting the last price of an instrument, and validating environment variables.
 - `test_helpers.py`: Contains unit tests for the helper functions.
 - `test_main.py`: Contains unit tests for the main functions.
@@ -144,7 +144,7 @@ The main function, `main`, in the `main.py` file starts by validating environmen
 
 The `helpers.py` file provides helper functions for various tasks, such as getting the instrument and order parameters, executing orders, getting the last price of an instrument, and validating environment variables.
 
-The `tests.py` file contains unit tests for the helper functions in the `helpers.py` file.
+The `test_helpers.py` and `test_main.py` files contain unit tests for the helper and main functions.
 
 To modify or extend the trading bot, you can start by looking into the `main.py` and `helpers.py` files and making changes as needed. Make sure to update the unit tests accordingly.
 
