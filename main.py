@@ -32,7 +32,7 @@ def main(request):
     """
     
     # Setup logging level
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.INFO)
     quotecast_logger = logging.getLogger('degiro_connector.quotecast')
     quotecast_logger.setLevel(logging.WARNING)
 
@@ -90,7 +90,6 @@ def main(request):
 
     if order_params is not None and order_params.execute_order is True:
         instrument_id = order_params.instrument_id
-        step = order_params.step
         order_type = order_params.order_type
         order_price_target = order_params.order_price_target
     elif order_params.execute_order is False:
@@ -108,7 +107,7 @@ def main(request):
         return flask.Response("Error getting last price", status=500)
 
     # Execute orders
-    if execute_orders(trading_api, instrument_id, step, order_type, order_size, user_token):
+    if execute_orders(trading_api, instrument_id, order_type, order_size, user_token):
         return flask.Response("Order confirmed", status=200)
     else:
         return flask.Response("Error confirming order", status=500)

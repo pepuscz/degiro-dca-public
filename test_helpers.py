@@ -39,7 +39,7 @@ def test_get_instrument_and_order_params_same_currency():
 
         with unittest.mock.patch("json.load", mock_json_load):
             result = get_instrument_and_order_params()
-            expected_result = OrderParams("123456", -1, Order.OrderType.LIMIT, 100.0, True)
+            expected_result = OrderParams("123456", Order.OrderType.LIMIT, 100.0, True)
 
             assert result == expected_result
 
@@ -59,13 +59,9 @@ def test_get_instrument_and_order_params_different_currency(mock_convert):
         with unittest.mock.patch("json.load", mock_json_load):
             mock_convert.return_value = json.dumps({"converted": True, "amount": "85.0"})
             result = get_instrument_and_order_params()
+            expected_result = OrderParams("123456", Order.OrderType.LIMIT, 85.0, True)
 
-            assert isinstance(result, OrderParams)
-            assert result.instrument_id == "123456"
-            assert result.step == -1
-            assert result.order_type == 0
-            assert result.order_price_target == 85.0
-            assert result.execute_order is True
+            assert result == expected_result
 
 def test_get_instrument_and_order_params_conversion_failed():
     def mock_json_load(*args, **kwargs):
