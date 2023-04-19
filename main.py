@@ -6,7 +6,7 @@ import time
 import json
 import functions_framework
 from google_currency import convert
-
+from degiro_connector.trading.models.trading_pb2 import ProductsInfo
 from degiro_connector.trading.api import API as TradingAPI
 from degiro_connector.trading.models.trading_pb2 import (
     Order,
@@ -32,7 +32,7 @@ def main(request):
     """
     
     # Setup logging level
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.DEBUG)
     quotecast_logger = logging.getLogger('degiro_connector.quotecast')
     quotecast_logger.setLevel(logging.WARNING)
 
@@ -57,7 +57,7 @@ def main(request):
     # Setup credentials
     credentials = Credentials(
         username=os.environ.get("DEGIRO_USERNAME"),
-        password=os.environ.get("DEGIRO_PASSWORD"),
+        password=os.environ.get("DEGIRO_PASSWORD")
     )
 
     # Setup trading API
@@ -75,14 +75,16 @@ def main(request):
             logging.error("Connection failed")
             return flask.Response("Connection failed", status=500)
         
-    # Get user_token
+    # Get user_token and int_account
     client_details_table = trading_api.get_client_details()
     user_token = client_details_table["data"]["id"]
+    logging.debug("User token: %s", user_token)
+    int_account = client_details_table["data"]["intAccount"]
+    logging.debug("Int account: %s", int_account)
 
-    # Test DEGIRO_USER_TOKEN against trading API
-    if not is_user_token_valid(user_token):
-        return flask.Response("Error: Invalid user_token", status=401)
-    
+    # Set int_account in credentials
+    credentials.int_account = int_account
+
     # Get instrument ID and order parameters
     order_params = get_instrument_and_order_params()
 
@@ -90,7 +92,7 @@ def main(request):
         instrument_id = order_params.instrument_id
         step = order_params.step
         order_type = order_params.order_type
-        order_price_target = order_params.order_cash
+        order_price_target = order_params.order_price_target
     elif order_params.execute_order is False:
         return flask.Response("No orders executed", status=200)
     else:
@@ -98,9 +100,12 @@ def main(request):
 
     # Get last price
     last_price = get_last_price(trading_api, user_token, instrument_id)
-    logging.info("Last price of %s is %.4f", instrument_id, last_price)
-    order_size = math.floor(order_price_target / last_price)
-    logging.info("Order size of %s is %s", instrument_id, order_size)
+    if last_price is not None:
+        logging.info("Last price of %s is %.4f", instrument_id, last_price)
+        order_size = math.floor(order_price_target / last_price)
+        logging.info("Order size of %s is %s", instrument_id, order_size)
+    else:
+        return flask.Response("Error getting last price", status=500)
 
     # Execute orders
     if execute_orders(trading_api, instrument_id, step, order_type, order_size, user_token):

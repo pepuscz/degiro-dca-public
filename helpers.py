@@ -127,6 +127,7 @@ def get_last_price(trading_api, user_token, instrument_id):
 
     # Make request to get product information
     request = ProductsInfo.Request()
+    logging.info("Getting product information for instrument ID %i", instrument_id)
     request.products.extend([instrument_id])
     products_info = trading_api.get_products_info(request=request, raw=True)
 
@@ -135,10 +136,10 @@ def get_last_price(trading_api, user_token, instrument_id):
         logging.error("Error getting product information for instrument ID %s", instrument_id)
         return None
     if "data" not in products_info:
-        logging.error("Error getting product information for instrument ID %s", instrument_id)
+        logging.error("Error getting product data for instrument ID %s", instrument_id)
         return None
     if str(instrument_id) not in products_info["data"]:
-        logging.error("Error getting product information for instrument ID %s", instrument_id)
+        logging.error("Error getting instrument for instrument ID %s", instrument_id)
         return None
 
     # Get vwdId for product
