@@ -6,7 +6,6 @@ import time
 import json
 import functions_framework
 from google_currency import convert
-from degiro_connector.trading.models.trading_pb2 import ProductsInfo
 from degiro_connector.trading.api import API as TradingAPI
 from degiro_connector.trading.models.trading_pb2 import (
     Order,
@@ -79,6 +78,8 @@ def main(request):
     client_details_table = trading_api.get_client_details()
     user_token = client_details_table["data"]["id"]
     logging.debug("User token: %s", user_token)
+    if is_user_token_valid(user_token) is False:
+        return flask.Response("Error: error fetching from Quotecast API, invalid user token", status=500)
     int_account = client_details_table["data"]["intAccount"]
     logging.debug("Int account: %s", int_account)
 

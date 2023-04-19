@@ -125,7 +125,7 @@ def get_last_price(trading_api, user_token, instrument_id):
 
     # Make request to get product information
     request = ProductsInfo.Request()
-    logging.info("Getting product information for instrument ID %i", instrument_id)
+    logging.debug("Getting product information for instrument ID %i", instrument_id)
     request.products.extend([instrument_id])
     products_info = trading_api.get_products_info(request=request, raw=True)
 
@@ -215,5 +215,5 @@ def is_user_token_valid(user_token):
         _ = quotecast_api.fetch_metrics(request=request)
         return True
     except Exception as e:
-        logging.error("Error fetching from Quotecast API, probably wrong DEGIRO_USER_TOKEN")
+        logging.error("Error fetching from Quotecast API: %s", e)
         return False
