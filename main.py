@@ -34,7 +34,7 @@ def main(request):
     # Setup logging level
     logging.basicConfig(level=logging.INFO)
     quotecast_logger = logging.getLogger('degiro_connector.quotecast')
-    quotecast_logger.setLevel(logging.WARNING)
+    quotecast_logger.setLevel(logging.CRITICAL)
 
     # Validate environment variables
     env_vars = ["DEGIRO_USERNAME", "DEGIRO_PASSWORD"]
