@@ -14,13 +14,12 @@ from degiro_connector.quotecast.api import API as QuotecastAPI
 from degiro_connector.quotecast.models.quotecast_pb2 import Quotecast
 from degiro_connector.trading.models.trading_pb2 import ProductsInfo
 
-OrderParams = namedtuple("OrderParams", ["instrument_id", "step", "order_type", "order_price_target", "execute_order"])
+OrderParams = namedtuple("OrderParams", ["instrument_id", "order_type", "order_price_target", "execute_order"])
 """
 A namedtuple representing the order parameters for a given instrument.
 
 Attributes:
     instrument_id (int): The DeGiro instrument ID.
-    step (int): Order step.
     order_type (Order.OrderType): The type of the order (e.g., Order.OrderType.LIMIT).
     order_price_target (float): The target cash amount for the order.
     execute_order (bool): Whether to execute the order or not.
@@ -30,7 +29,7 @@ def get_instrument_and_order_params():
     """
     Returns the instrument ID and order parameters for the current week of the month.
 
-    :return: namedtuple OrderParams containing instrument_id, step, order_type,
+    :return: namedtuple OrderParams containing instrument_id, order_type,
              order_price_target, and execute_order
     """
 
@@ -52,27 +51,26 @@ def get_instrument_and_order_params():
 
     if instrument_id is None or amount_to_buy is None:
         logging.info("No orders executed for week %d of the month", week_of_month)
-        return OrderParams(None,None,None,None,False)
+        return OrderParams(None,None,None,False)
 
     if account_currency == conversion_currency or conversion_currency is None:
-        return OrderParams(instrument_id, -1, Order.OrderType.LIMIT, float(amount_to_buy),True)
+        return OrderParams(instrument_id, Order.OrderType.LIMIT, float(amount_to_buy),True)
     else:
         conversion_str = convert(conversion_currency, account_currency, amount_to_buy)
         conversion_dict = json.loads(conversion_str)
 
         if conversion_dict.get('converted'):
-            return OrderParams(instrument_id, -1, Order.OrderType.LIMIT, float(conversion_dict.get('amount')), True)
+            return OrderParams(instrument_id, Order.OrderType.LIMIT, float(conversion_dict.get('amount')), True)
         else:
             logging.error("Conversion failed for week %d and instrument ID %s", week_of_month, instrument_id)
             return None
 
-def execute_orders(trading_api, instrument_id, step, order_type, order_size, user_token):
+def execute_orders(trading_api, instrument_id, order_type, order_size, user_token):
     """
     Execute orders for the specified instrument ID and order parameters.
 
     :param trading_api: TradingAPI instance for connecting to the DeGiro API
     :param instrument_id: DeGiro instrument ID
-    :param step: Order step
     :param order_type: Order type (e.g., Order.OrderType.LIMIT)
     :param order_size: Order size (number of shares)
     :param user_token: DeGiro user token for authentication
@@ -127,6 +125,7 @@ def get_last_price(trading_api, user_token, instrument_id):
 
     # Make request to get product information
     request = ProductsInfo.Request()
+    logging.debug("Getting product information for instrument ID %i", instrument_id)
     request.products.extend([instrument_id])
     products_info = trading_api.get_products_info(request=request, raw=True)
 
@@ -135,10 +134,10 @@ def get_last_price(trading_api, user_token, instrument_id):
         logging.error("Error getting product information for instrument ID %s", instrument_id)
         return None
     if "data" not in products_info:
-        logging.error("Error getting product information for instrument ID %s", instrument_id)
+        logging.error("Error getting product data for instrument ID %s", instrument_id)
         return None
     if str(instrument_id) not in products_info["data"]:
-        logging.error("Error getting product information for instrument ID %s", instrument_id)
+        logging.error("Error getting instrument for instrument ID %s", instrument_id)
         return None
 
     # Get vwdId for product
@@ -216,5 +215,5 @@ def is_user_token_valid(user_token):
         _ = quotecast_api.fetch_metrics(request=request)
         return True
     except Exception as e:
-        logging.error("Error fetching from Quotecast API, probably wrong DEGIRO_USER_TOKEN")
+        logging.error("Error fetching from Quotecast API: %s", e)
         return False
